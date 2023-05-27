@@ -1,0 +1,6 @@
+
+# ignore important files
+
+.env
+.vscode
+__pycache__
