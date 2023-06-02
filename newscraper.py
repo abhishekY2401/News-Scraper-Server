@@ -4,51 +4,59 @@ from datetime import datetime
 
 
 def scrape_news_article(url):
-    authorname = []
-    title = []
-    thearticle = []
+    # authorname = []
+    article_data = []
+    # thearticle = []
 
     # store the text for each article
-    paragraphtext = []
-
+    # paragraphtext = []
     page = requests.get(url)
     soup = BeautifulSoup(page.content, 'html.parser')
 
-    # get author name, if there is any for the article
-    try:
-        abody = soup.find(class_="_84Z--AMj").find('j')
-        aname = abody.get_text()
-    except:
-        aname = 'Anonymous'
+    articles = soup.find_all("a", class_="ObwfaEm5")
 
-    # get article title
-    a_title = soup.find(class_='fs-headline')
-    thetitle = a_title.get_text()
+    # extracting article link, title and img
+    for article in articles:
+        img_url = 'a'
+        title = article.get('aria-label')
+        link = article.get('href')
+        img = article.find_all()
 
-    # get main article page
-    articlebody = soup.find(class_='main-content')
+        for child in img:
+            if 'src' in child.attrs:
+                img_url = child['src']
 
-    # get text
-    articletext = soup.find_all('p')
+        news = {
+            "title": title,
+            "link": link,
+            "img_url": img_url
+        }
 
-    # print text
-    for para in articletext:
-        # get the text only
-        text = para.get_text()
-        paragraphtext.append(text)
+        article_data.append(news)
 
-    # combine all the paragraphs into article
-    thearticle.append(paragraphtext)
-    authorname.append(aname)
-    title.append(thetitle)
+    # fetch the news article content
+    for news in article_data:
+        article_url = news['link']
 
-    myarticle = [' '.join(article) for article in thearticle]
+        # Send GET request to the article URL
+        response = requests.get(article_url)
+        if response.status_code == 200:
+            article_html = response.text
 
-    data = {
-        'Title': thetitle,
-        'Author': authorname,
-        'Article': myarticle,
-        'Date': datetime.now()
-    }
+            # Parse the HTML content of the article page
+            sup = BeautifulSoup(article_html, 'html.parser')
 
-    return myarticle
+            # Extract the content from the HTML elements
+            content_elements = sup.find_all('p')  # Example: Extract paragraphs
+
+            # Process and store the extracted content as needed
+            extracted_content = []
+            for element in content_elements:
+                extracted_content.append(element.get_text())
+
+            news['content'] = extracted_content
+
+    # for data in article_data:
+    #     print(data)
+
+    return article_data
