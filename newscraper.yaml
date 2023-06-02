@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: newswebscraper
+  labels:
+    app: newswebscraper
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: newswebscraper
+  template:
+    metadata:
+      labels:
+        app: newswebscraper
+    spec:
+      containers:
+        - name: newswebscraper
+          image: abhi24yadav/newscraper-python:1.0.0
+          ports:
+            - containerPort: 5000
+          imagePullPolicy: Always
