@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 from flask import Flask, jsonify
 import json
+from bson import json_util, ObjectId
 from pymongo import MongoClient
 from flask_pymongo import PyMongo
 from sumy.parsers.plaintext import PlaintextParser
@@ -35,11 +36,12 @@ def index():
     )
 
 
-@app.route("/<type>")
-def summarization(type):
-    url = "https://www.forbes.com/" + type
+@app.route("/<category>")
+def summarization(category):
+    url = "https://www.forbes.com/" + category
     data = scrape_news_article(url)
-
+    
+    articles = []
     news_content = []
 
     for news in data:
@@ -53,17 +55,37 @@ def summarization(type):
         # <Sentence: " sentence ">
         # print the summary
         sentences = [sentence.__str__() for sentence in summary]
-        article = ' '.join(sentences)
-        news_content.append(article)
-
-    news_data = json.loads(json.dumps(news_content))
+        article = ' '.join(sentences).replace("\\", " ")
+        
+        news_article_info = {
+            
+            "title": news['title'],
+            "img_url": news['img_url'],
+            "content": [article],
+        }
+        
+        articles.append(news_article_info)
+        
     article_content = {
-        type: news_data
+        "_id": str(ObjectId()),
+        category: articles
     }
+    
+    # serialize the object to json 
+    json_data = json.loads(json_util.dumps(article_content))
+    print(json_data)
+    
+    data = {category: json_data[category]}
+    result = collection.find_one(data)
+    print(result)
+    
+    if (result):
+        collection.update_one(article_content, {"$push": data})
+    else:
+        collection.insert_one(json_data)
+        
 
-    collection.insert_one(article_content)
-
-    return article_content
+    return json_data
 
 
 if __name__ == "__main__":
