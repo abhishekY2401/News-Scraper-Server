@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 import json
 from bson import json_util, ObjectId
 from pymongo import MongoClient
@@ -29,6 +29,7 @@ client = MongoClient(MONGO_URI)
 db = client.get_database()
 
 collection = db['article']
+colUser = db['user']
 
 api_key = os.environ.get('ASSEMBLYAI_API_KEY')
 
@@ -69,7 +70,7 @@ def summarization(category):
             # print the summary
             sentences = [sentence.__str__() for sentence in summary]
             
-            article = ''.join(sentences)
+            article = ''.join(zsentences)
             # wrapper = textwrap.wrap(article, width=500, fix_sentence_endings=True, break_long_words=True, tabsize=8)
             # print(wrapper)
             news_content.append(article)    
@@ -160,6 +161,22 @@ def all_news():
     json_articles = json.loads(json_util.dumps(forbes_article))
         
     return json_articles
+
+# create user
+# @app.route("/create_user", methods=['GET', 'POST'])
+# def createUser():
+#     if request.method == 'POST':
+#         # get email
+#         email = request.form.get("email")
+#         # get password
+#         password = request.form.get("password")
+        
+#         try:    
+#             user = colUser.insert_one({"email": email, "password": password})
+#         except Exception as e:
+#             raise e
+        
+#         return {"msg": "Account created successfully!"}
 
 
 if __name__ == "__main__":
