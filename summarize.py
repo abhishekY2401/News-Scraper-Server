@@ -70,7 +70,7 @@ def summarization(category):
             # print the summary
             sentences = [sentence.__str__() for sentence in summary]
             
-            article = ''.join(zsentences)
+            article = ''.join(sentences)
             # wrapper = textwrap.wrap(article, width=500, fix_sentence_endings=True, break_long_words=True, tabsize=8)
             # print(wrapper)
             news_content.append(article)    
@@ -180,4 +180,4 @@ def all_news():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
