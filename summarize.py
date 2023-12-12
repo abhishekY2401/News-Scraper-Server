@@ -12,24 +12,31 @@ from newscraper import scrape_news_article
 from flask_cors import CORS
 import socket
 import requests
+import hashlib
+import urllib
+from flask_jwt_extended import JWTManager, create_access_token, get_jwt_identity, jwt_required
 from bs4 import BeautifulSoup
-import textwrap
+import datetime
 
 app = Flask(__name__)
 CORS(app)
 
+jwt = JWTManager(app) # initialize JWTManager
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(days=1)
+
+
 # Load environment variables from .env file
 load_dotenv()
 
-username = os.getenv("MONGO_ROOT_USERNAME")
-password = os.getenv("MONGO_ROOT_PASSWORD")
+username = os.environ.get("MONGO_ROOT_USERNAME")
+password = os.environ.get("MONGO_ROOT_PASSWORD")
 
-MONGO_URI = f"mongodb+srv://{username}:{password}@cluster0.5wybg2p.mongodb.net/news?retryWrites=true&w=majority"
+MONGO_URI = f"mongodb+srv://{username}:{password}@news-service.egwgjil.mongodb.net/news_db?retryWrites=true&w=majority"
 client = MongoClient(MONGO_URI)
 db = client.get_database()
 
 collection = db['article']
-colUser = db['user']
+colUser = db['users']
 
 api_key = os.environ.get('ASSEMBLYAI_API_KEY')
 
@@ -162,21 +169,23 @@ def all_news():
         
     return json_articles
 
-# create user
-# @app.route("/create_user", methods=['GET', 'POST'])
-# def createUser():
-#     if request.method == 'POST':
-#         # get email
-#         email = request.form.get("email")
-#         # get password
-#         password = request.form.get("password")
-        
-#         try:    
-#             user = colUser.insert_one({"email": email, "password": password})
-#         except Exception as e:
-#             raise e
-        
-#         return {"msg": "Account created successfully!"}
+# USER AUTHENTICATION
+
+@app.route("/register/user", methods=["POST"])
+def register():
+    new_user = request.get_json() # get json body request
+    new_user["password"] = hashlib.sha256(new_user["password"].encode("utf-8").hexdigest()) # encrypt password
+    
+    # check if user already exists
+    doc = colUser.find_one({"username": new_user["username"]})
+    
+    # if user does not exists, then create a user
+    if not doc:
+        # create the user
+        colUser.insert_one(new_user)
+        return jsonify({'msg', 'User created successfully'}, 201)
+    
+    return jsonify({'msg': "Not authenticated"}, 401)
 
 
 if __name__ == "__main__":
