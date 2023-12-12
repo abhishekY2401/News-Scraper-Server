@@ -21,6 +21,6 @@ jobs:
       - name: Run Your Build Script
         run: |
           # Use environment variables in your script
-          echo "DB_USERNAME=${DB_USERNAME}"
-          echo "DB_PASSWORD=${DB_PASSWORD}"
+          echo "DB_USERNAME=${MONGO_ROOT_USERNAME}"
+          echo "DB_PASSWORD=${MONGO_ROOT_PASSWORD}"
           echo "ASSEMBLYAI_API_KEY=${ASSEMBLYAI_API_KEY}"
