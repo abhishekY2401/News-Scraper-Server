@@ -1,0 +1,26 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      MONGO_ROOT_USERNAME: ${{ secrets.MONGO_ROOT_USERNAME }}
+      MONGO_ROOT_PASSWORD: ${{ secrets.MONGO_ROOT_PASSWORD }}
+      ASSEMBLYAI_API_KEY: ${{ secrets.ASSEMBLYAI_API_KEY }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Run Your Build Script
+        run: |
+          # Use environment variables in your script
+          echo "DB_USERNAME=${DB_USERNAME}"
+          echo "DB_PASSWORD=${DB_PASSWORD}"
+          echo "ASSEMBLYAI_API_KEY=${ASSEMBLYAI_API_KEY}"
