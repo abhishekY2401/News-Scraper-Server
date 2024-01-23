@@ -17,4 +17,4 @@ It's very simple, third party services charge for their News APIs, so I built on
 - Collect news from different sources
 
 ### Deployment
-This scraper api is deployed on pythonanywhere.com
+This scraper api is deployed on pythonanywhere.com (currently down due to certain dependency issues, we'll be back soon)
