@@ -11,7 +11,7 @@
 - NLTK (for news summarization)
 
 ### Why News Scraper? 
-It's very simple, third party services charge for their News APIs, so I built on my own.
+It's very simple, third party services charge for their News APIs, so I built my own.
 
 ### New Features to Integrate
 - Collect news from different sources
