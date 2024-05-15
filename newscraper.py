@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 
 # scraping from forbes
-def scrape_news_article(url):
+def scrape_news_article_from_forbes(url):
     # authorname = []
     i=0
     article_data = []
@@ -41,7 +41,7 @@ def scrape_news_article(url):
         
         article_data.append(news)
         i+=1
-        print(article_data)
+        # print(article_data)
     # fetch the news article content
     for news in article_data:
         article_url = news['link']
@@ -76,8 +76,34 @@ def scrape_news_article(url):
     return article_data
 
 # scraping from wired for AI news
-
+def scrape_news_article_from_wired(article_url):
+    article_data = {}
+    extracted_content = []
     
+    page_res = requests.get(article_url)
+    soup_data = BeautifulSoup(page_res.content, 'html.parser')
+    
+    # article_info = soup_data.find('div', class_='GridWrapper-cAzTTK')
+    title = soup_data.find('h1', class_='BaseWrap-sc-gjQpdd').text # type: ignore
+    author = soup_data.find('div', class_='BylinesWrapper-KIudk').text # type: ignore
+    image = soup_data.find_all('img', class_='ResponsiveImageContainer-eybHBd fptoWY responsive-image__image')
+    content = soup_data.find_all('p')
+    # date = soup_data.find('time', class_='SplitScreenContentHeaderPublishDate-bMGEVk kMYmqz').text #type: ignore
+    
+    for element in content:
+        extracted_content.append(element.get_text())
+    
+    article_data['images'] = image[1]['src']
+    article_data['title'] = title
+    article_data['author'] = author
+    article_data['content'] = extracted_content
+    # article_data['date'] = date
+    # print(article_data)
+    
+    return article_data
+
+
+# scrape_news_article_from_wired("https://wired.com/story/generative-ai-totally-shameless/")
     
 
 
