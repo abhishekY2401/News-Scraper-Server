@@ -12,15 +12,14 @@ from newscraper import scrape_news_article_from_forbes, scrape_news_article_from
 from flask_cors import CORS
 import socket
 import requests
-from flask_jwt_extended import JWTManager, create_access_token, get_jwt_identity, jwt_required
 from bs4 import BeautifulSoup
 import datetime
 
 app = Flask(__name__)
 CORS(app)
 
-jwt = JWTManager(app) # initialize JWTManager
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(days=1)
+# jwt = JWTManager(app) # initialize JWTManager
+# app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(days=1)
 
 
 # Load environment variables from .env file
