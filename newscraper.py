@@ -1,5 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
+import logging
+
+logging.basicConfig(level=logging.INFO)
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
@@ -14,69 +17,75 @@ def scrape_news_article_from_forbes(url):
 
     # store the text for each article
     # paragraphtext = []
-    page = requests.get(url, headers=headers)
-    soup = BeautifulSoup(page.content, 'html.parser')
+    try:
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        logging.info(f"Fetched data from {url} successfully")
+        soup = BeautifulSoup(page.content, 'html.parser')
 
-    articles = soup.find_all("a", class_="ObwfaEm5")
-    authors = soup.find_all("a", class_="_84Z--AMj")
+        articles = soup.find_all("a", class_="ObwfaEm5")
+        authors = soup.find_all("a", class_="_84Z--AMj")
+        
+        # extracting article link, title and img
+        for article in articles:
+            author = ''
+            img_url = 'a'
+            title = article.get('aria-label')
+            link = article.get('href')
+            img = article.find_all()    
+            if authors[i].get('data-ga-track') is not None:
+                author = authors[i].get('data-ga-track')[30:]  
     
-    # extracting article link, title and img
-    for article in articles:
-        author = ''
-        img_url = 'a'
-        title = article.get('aria-label')
-        link = article.get('href')
-        img = article.find_all()    
-        if authors[i].get('data-ga-track') is not None:
-            author = authors[i].get('data-ga-track')[30:]  
-
-        for child in img:
-            if 'src' in child.attrs:
-                img_url = child['src']
-        
-        news = {
-            "title": title,
-            "author": author,
-            "link": link,
-            "img_url": img_url
-        }
-        
-        
-        article_data.append(news)
-        i+=1
-        # print(article_data)
-    # fetch the news article content
-    for news in article_data:
-        article_url = news['link']
-
-        # Send GET request to the article URL
-        response = requests.get(article_url)
-        if response.status_code == 200:
-            article_html = response.text
-
-            # Parse the HTML content of the article page
-            sup = BeautifulSoup(article_html, 'html.parser')
-
-            # Extract the content from the HTML elements
-            content_elements = sup.find_all('p')  # Example: Extract paragraphs
+            for child in img:
+                if 'src' in child.attrs:
+                    img_url = child['src']
             
-            # Extract author name
-            # news_author = soup.find_all('div', class_="fs-author-wrapper")
+            news = {
+                "title": title,
+                "author": author,
+                "link": link,
+                "img_url": img_url
+            }
+            
+            
+            article_data.append(news)
+            i+=1
+            # print(article_data)
+        # fetch the news article content
+        for news in article_data:
+            article_url = news['link']
     
-            # author = news_author.findAll('a', class_='contrib-link--name')
-            # print(author.get_text())
-            
-            # Process and store the extracted content as needed
-            extracted_content = []
-            for element in content_elements:
-                extracted_content.append(element.get_text())
+            # Send GET request to the article URL
+            response = requests.get(article_url)
+            if response.status_code == 200:
+                article_html = response.text
+    
+                # Parse the HTML content of the article page
+                sup = BeautifulSoup(article_html, 'html.parser')
+    
+                # Extract the content from the HTML elements
+                content_elements = sup.find_all('p')  # Example: Extract paragraphs
                 
-            news['content'] = extracted_content
+                # Extract author name
+                # news_author = soup.find_all('div', class_="fs-author-wrapper")
+        
+                # author = news_author.findAll('a', class_='contrib-link--name')
+                # print(author.get_text())
+                
+                # Process and store the extracted content as needed
+                extracted_content = []
+                for element in content_elements:
+                    extracted_content.append(element.get_text())
+                    
+                news['content'] = extracted_content
+    
+        # for data in article_data:
+        #     print(data)
 
-    # for data in article_data:
-    #     print(data)
-
-    return article_data
+        return article_data
+     except requests.exceptions.RequestException as e:
+        logging.error(f"Error fetching data from {url}: {e}")
+        return None
 
 # scraping from wired for AI news
 def scrape_news_article_from_wired(article_url):
