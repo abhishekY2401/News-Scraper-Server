@@ -17,6 +17,9 @@ import datetime
 
 app = Flask(__name__)
 CORS(app)
+headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
+}
 
 # jwt = JWTManager(app) # initialize JWTManager
 # app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(days=1)
@@ -101,7 +104,7 @@ def top_news():
     news_article_link = []
     url = "https://forbes.com/"
     
-    page = requests.get(url)
+    page = requests.get(url, headers=headers)
     soup = BeautifulSoup(page.content, 'html.parser')
     
     popular_news = soup.find_all('li', class_='data-viz__item')
@@ -115,7 +118,7 @@ def scrape_from_wired():
     links = []
     
     try:
-        page_res = requests.get("https://wired.com/tag/artificial-intelligence/")
+        page_res = requests.get("https://wired.com/tag/artificial-intelligence/", headers=headers)
         # print(page_res)
         soup = BeautifulSoup(page_res.content, 'html.parser')
 
@@ -142,7 +145,7 @@ def all_news():
     news_articles = []
     news_link = []
     url = "https://forbes.com"
-    page = requests.get(url)
+    page = requests.get(url, headers=headers)
     soup = BeautifulSoup(page.content, 'html.parser')
     
     articles = soup.find_all('section', class_="channel--lazy")
