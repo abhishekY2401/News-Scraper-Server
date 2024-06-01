@@ -1,6 +1,9 @@
 import requests
 from bs4 import BeautifulSoup
 
+headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
+}
 # scraping from forbes
 def scrape_news_article_from_forbes(url):
     # authorname = []
@@ -11,7 +14,7 @@ def scrape_news_article_from_forbes(url):
 
     # store the text for each article
     # paragraphtext = []
-    page = requests.get(url)
+    page = requests.get(url, headers=headers)
     soup = BeautifulSoup(page.content, 'html.parser')
 
     articles = soup.find_all("a", class_="ObwfaEm5")
@@ -80,7 +83,7 @@ def scrape_news_article_from_wired(article_url):
     article_data = {}
     extracted_content = []
     
-    page_res = requests.get(article_url)
+    page_res = requests.get(article_url, headers=headers)
     soup_data = BeautifulSoup(page_res.content, 'html.parser')
     
     # article_info = soup_data.find('div', class_='GridWrapper-cAzTTK')
